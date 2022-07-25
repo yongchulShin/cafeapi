@@ -41,18 +41,10 @@ public class OrderController {
 		return ResponseEntity.ok().body(orderService.orderDetailList(email));
 	}
 	
-	//미정산 내역(승인 : Y, 정산 : N)
 	@GetMapping("/orderList")
 	public ResponseEntity<Iterable<Order>> getOrderList(@RequestBody Map<String, String> map) {
 		String email =  map.get("email");
 		return ResponseEntity.ok().body(orderService.getOrderList(email));
-	}
-	
-	//정산 내역(승인 : Y, 정산 : Y)
-	@GetMapping("/balanceList")
-	public ResponseEntity<Iterable<Order>> getbalanceList(@RequestBody Map<String, String> map) {
-		String email =  map.get("email");
-		return ResponseEntity.ok().body(orderService.getbalanceList(email));
 	}
 
 }
