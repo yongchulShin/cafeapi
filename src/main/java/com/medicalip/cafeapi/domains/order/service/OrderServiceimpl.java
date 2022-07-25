@@ -76,9 +76,18 @@ public class OrderServiceimpl implements OrderService  {
 	public Iterable<Order> getOrderList(String email) {
 		// TODO Auto-generated method stub
 		if(email.isEmpty()) {
-			return orderRepository.findAll();
+			return orderRepository.getOrderListAll();
 		}
 		return orderRepository.getOrderList(email);
+	}
+
+	@Override
+	public Iterable<Order> getbalanceList(String email) {
+		// TODO Auto-generated method stub
+		if(email.isEmpty()) {
+			return orderRepository.getbalanceListAll();
+		}
+		return orderRepository.getbalanceList(email);
 	}
 
 }
