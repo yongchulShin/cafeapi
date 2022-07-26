@@ -90,4 +90,10 @@ public class OrderServiceimpl implements OrderService  {
 		return orderRepository.getbalanceList(email);
 	}
 
+	@Override
+	public Iterable<Order> getApprovalList(String email) {
+		// TODO Auto-generated method stub
+		return orderRepository.getApprovalList(email);
+	}
+
 }

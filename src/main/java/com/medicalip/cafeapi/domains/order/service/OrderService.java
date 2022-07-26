@@ -15,4 +15,6 @@ public interface OrderService {
 
 	Iterable<Order> getbalanceList(String email);
 
+	Iterable<Order> getApprovalList(String email);
+
 }

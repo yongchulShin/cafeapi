@@ -52,7 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 	            .authorizeRequests() // 다음 리퀘스트에 대한 사용권한 체크
 	                .antMatchers("/token/refresh", "/test/**", "/user/**", "/swagger-ui/**").permitAll()
 	                // 가입 및 인증 주소는 누구나 접근 가능
-//	                .antMatchers("/order/**").hasAnyRole("USER")
+	                .antMatchers("/order/**").hasAnyRole("USER","ADMIN")
 	                // helloworld로 시작하는 get 요청 리소스는 누구나 접근 가능
 	                .anyRequest().authenticated()
           .and()
