@@ -39,7 +39,7 @@ public class OrderController {
 	}
 	
 	//승인 내역(승인 : N, 정산 : N)
-	@GetMapping("/list")
+	@PostMapping("/list")
 	public ResponseEntity<Iterable<Order>> orderList(@RequestBody @Valid OrderRequest req) {
 		String email =  req.getEmail();
 		System.out.println("email :: " + email);
@@ -48,7 +48,7 @@ public class OrderController {
 	}
 	
 	//미정산 내역(승인 : Y, 정산 : N)
-	@GetMapping("/orderList")
+	@PostMapping("/orderList")
 	public ResponseEntity<Iterable<Order>> getOrderList(@RequestBody OrderRequest req) {
 		String email =  req.getEmail();
 		System.out.println("email :: " + email);
@@ -56,7 +56,7 @@ public class OrderController {
 	}
 	
 	//정산 내역(승인 : Y, 정산 : Y)
-	@GetMapping("/balanceList")
+	@PostMapping("/balanceList")
 	public ResponseEntity<Iterable<Order>> getbalanceList(@RequestBody OrderRequest req) {
 		String email =  req.getEmail();
 		System.out.println("email :: " + email);

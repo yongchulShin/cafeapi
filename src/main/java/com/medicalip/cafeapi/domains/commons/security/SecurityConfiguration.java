@@ -34,7 +34,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-    	System.out.println("[SecurityConfiguration configure]");
+    	System.out.println("[HttpSecurity configure]");
     	
         http
         	.httpBasic().disable()
@@ -47,7 +47,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
                 // jwt token으로 생성하므로 세션은 필요 없으므로 생성 안함.
             .and()
 	            .authorizeRequests() // 다음 리퀘스트에 대한 사용권한 체크
-	                .antMatchers("/token/refresh", "/test/**", "/user/**", "/swagger-ui/**").permitAll()
+	                .mvcMatchers("/", "/test/**", "/user/**", 
+	                		"/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**",
+	                		"/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**" ).permitAll()
+	                
 	                // 가입 및 인증 주소는 누구나 접근 가능
 	                .antMatchers("/order/**").hasAnyRole("USER","ADMIN")
 	                // helloworld로 시작하는 get 요청 리소스는 누구나 접근 가능
@@ -59,14 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
         		
     }
 
-    @Override //
-    public void configure(WebSecurity web) {
-    	System.out.println("[SecurityConfiguration configure]");
-        web.ignoring().antMatchers("/v2/api-docs", "/v3/api-docs/**","/swagger-resources/**",
-                                    "/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**","/api/**", "/user/**", "/**/signin", "/**/signup"
-//                                    , "/**/orderfrom"
-                                    );
-    }
+
     
     // CORS 허용 적용
     @Bean
