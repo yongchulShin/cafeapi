@@ -39,13 +39,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
         http
         	.httpBasic().disable()
             // rest api이므로 기본설정 안함. 기본설정은 비인증 시 로그인 폼 화면으로 리다이렉트 된다.
-        	.cors()
-        	.and()
-            .csrf().disable()
-            .formLogin().disable()
-//                .cors().configurationSource(corsConfigurationSource())
-                // rest api 이므로 csrf 보안이 필요 없음. disable
-//                .and()
+            .cors().configurationSource(corsConfigurationSource())
+            .and()
+	            // rest api 이므로 csrf 보안이 필요 없음. disable
+	            .csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 // jwt token으로 생성하므로 세션은 필요 없으므로 생성 안함.
             .and()
@@ -62,21 +59,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
         		
     }
 
-    @Override //
-    public void configure(WebSecurity web) {
-    	System.out.println("[SecurityConfiguration configure]");
-        web.ignoring().antMatchers("/v2/api-docs", "/v3/api-docs/**","/swagger-resources/**",
-                                    "/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**","/api/**", "/user/**", "/**/signin", "/**/signup"
-//                                    , "/**/orderfrom"
-                                    );
-    }
+//    @Override //
+//    public void configure(WebSecurity web) {
+//    	System.out.println("[SecurityConfiguration configure]");
+//        web.ignoring().antMatchers("/v2/api-docs", "/v3/api-docs/**","/swagger-resources/**",
+//                                    "/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**","/api/**", "/user/**", "/**/signin", "/**/signup"
+////                                    , "/**/orderfrom"
+//                                    );
+//    }
     
     // CORS 허용 적용
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+    	System.out.println("[CorsConfigurationSource]");
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.addAllowedOrigin("*");
+//        configuration.addAllowedOrigin("*");
 //        configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
