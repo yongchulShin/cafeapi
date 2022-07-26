@@ -59,14 +59,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
         		
     }
 
-//    @Override //
-//    public void configure(WebSecurity web) {
-//    	System.out.println("[SecurityConfiguration configure]");
-//        web.ignoring().antMatchers("/v2/api-docs", "/v3/api-docs/**","/swagger-resources/**",
-//                                    "/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**","/api/**", "/user/**", "/**/signin", "/**/signup"
-////                                    , "/**/orderfrom"
-//                                    );
-//    }
+    @Override //
+    public void configure(WebSecurity web) {
+    	System.out.println("[SecurityConfiguration configure]");
+        web.ignoring().antMatchers("/v2/api-docs", "/v3/api-docs/**","/swagger-resources/**",
+                                    "/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**","/api/**", "/user/**", "/**/signin", "/**/signup"
+//                                    , "/**/orderfrom"
+                                    );
+    }
     
     // CORS 허용 적용
     @Bean
