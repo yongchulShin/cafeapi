@@ -24,9 +24,9 @@ public class TokenController {
 
 	@Autowired private final TokenService tokenService;
 	
-	@PostMapping("/access/generate")
-	public SingleResult generateJwtToken(@RequestBody LoginRequest.Login loginRequest) {
-		return tokenService.generateJwtToken(loginRequest.getEmail());
-	}
+//	@PostMapping("/access/generate")
+//	public SingleResult generateJwtToken(@RequestBody LoginRequest.Login loginRequest) {
+//		return tokenService.generateJwtToken(loginRequest.getEmail());
+//	}
 	
 }

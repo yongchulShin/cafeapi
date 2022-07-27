@@ -24,14 +24,19 @@ import com.medicalip.cafeapi.domains.order.dto.OrderDetail;
 import com.medicalip.cafeapi.domains.order.dto.OrderRequest;
 import com.medicalip.cafeapi.domains.order.dto.OrderResponse;
 import com.medicalip.cafeapi.domains.order.service.OrderService;
+import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.Users;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/order")
+@Tag(name = "Order", description = "주문/정산 api")
 public class OrderController {
 	
 	private final OrderService orderService;
@@ -86,7 +91,9 @@ public class OrderController {
 	//정산 하기
 	@PostMapping("/updateBalanceYn")
 	@Operation(summary = "회원 별 정산하기(관리자)", description = "선택한 회원의 정산여부를 Y로 업데이트 한다. ")
-	public CommonResult updateBalanceYn(@NotBlank @NotEmpty @RequestBody OrderRequest req) {
+	public CommonResult updateBalanceYn(@NotBlank @NotEmpty 
+//			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(schema = @Schema(implementation = OrderRequest.class))) 
+			@RequestBody OrderRequest req) {
 		String email =  req.getEmail();
 		if(email == null || email.equals("")) {
 			return new CommonResult(400, "Email은 필수 값 입니다.");

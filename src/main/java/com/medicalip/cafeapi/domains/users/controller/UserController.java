@@ -1,6 +1,5 @@
 package com.medicalip.cafeapi.domains.users.controller;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -11,27 +10,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.medicalip.cafeapi.domains.commons.response.CommonResult;
-import com.medicalip.cafeapi.domains.commons.response.TokenResponse;
-import com.medicalip.cafeapi.domains.commons.util.EncryptUtil;
 import com.medicalip.cafeapi.domains.users.dto.LoginRequest;
 import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.Users;
 import com.medicalip.cafeapi.domains.users.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/user")
+@Tag(name = "Users", description = "회원관리 api")
 public class UserController {
 	
 	private final UserService userService; // user Service
 	
 	@PostMapping("/signup")
 	@Operation(summary = "회원가입", description = "회원가입을 한다.")
-	public CommonResult signUp(@RequestBody UserRequest userRequest) {
+	public CommonResult signUp(
+//			@io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(schema = @Schema(implementation = UserRequest.class))) 
+								@RequestBody UserRequest userRequest) {
 	  return userService.findByEmail(userRequest.getEmail()).isPresent()
 	      ? new CommonResult(400, "이미 가입된 회원입니다.")
 	      : userService.signUp(userRequest);

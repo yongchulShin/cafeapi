@@ -13,6 +13,7 @@ public class OrderRequest {
 	@NotBlank(message = "Email은 필수 값입니다.")
 	@NotEmpty(message = "Email은 필수 값입니다.")
 	private String email;
+	
 	private List<OrderDetail> orderDetail;
 	
 }
