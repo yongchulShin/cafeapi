@@ -44,7 +44,7 @@ public class OrderServiceimpl implements OrderService  {
 		Order order = orderRepository.save(
 				Order.builder()
 				.users(users)
-				.approvalYn("N")
+				.approvalYn("Y")
 				.balanceYn("N")
 				.edtTime(LocalDateTime.now())
 				.regTime(LocalDateTime.now())

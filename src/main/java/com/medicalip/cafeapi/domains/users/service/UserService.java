@@ -19,5 +19,4 @@ public interface UserService {
 	List<Users> findUsers();
 	TokenResponse signIn(LoginRequest.Login loginRequest);
 	UserRole saveUserRole(UserRole userRole);
-
 }

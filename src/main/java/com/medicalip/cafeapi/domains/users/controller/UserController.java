@@ -1,5 +1,6 @@
 package com.medicalip.cafeapi.domains.users.controller;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.medicalip.cafeapi.domains.commons.response.CommonResult;
 import com.medicalip.cafeapi.domains.commons.response.TokenResponse;
+import com.medicalip.cafeapi.domains.commons.util.EncryptUtil;
 import com.medicalip.cafeapi.domains.users.dto.LoginRequest;
 import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.Users;
@@ -41,5 +43,17 @@ public class UserController {
 	@GetMapping("/info")
 	public ResponseEntity<List<Users>> findUser() {
 	  return ResponseEntity.ok().body(userService.findUsers());
+	}
+	
+	@GetMapping("/chPass")
+	public String chPass() {
+		String pass = null;
+		try {
+			pass = EncryptUtil.sha512("1234");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pass;
 	}
 }

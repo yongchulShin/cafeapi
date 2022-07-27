@@ -1,9 +1,13 @@
 package com.medicalip.cafeapi.domains.users.dto;
 
+import java.security.NoSuchAlgorithmException;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import com.medicalip.cafeapi.domains.commons.util.EncryptUtil;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +24,14 @@ public class LoginRequest {
         private String password;
 
         public UsernamePasswordAuthenticationToken toAuthentication() {
-            return new UsernamePasswordAuthenticationToken(email, password);
+        	UsernamePasswordAuthenticationToken authToken = null;
+            try {
+            	authToken =  new UsernamePasswordAuthenticationToken(email, EncryptUtil.sha512(password));
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return authToken;
         }
     }
 }

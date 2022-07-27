@@ -1,20 +1,18 @@
 package com.medicalip.cafeapi.domains.users.service;
 
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import javax.net.ssl.SSLEngineResult.Status;
-
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +22,8 @@ import com.medicalip.cafeapi.domains.commons.jwt.TokenUtils;
 import com.medicalip.cafeapi.domains.commons.response.CommonResult;
 import com.medicalip.cafeapi.domains.commons.response.Response;
 import com.medicalip.cafeapi.domains.commons.response.TokenResponse;
-import com.medicalip.cafeapi.domains.commons.util.Authority;
 import com.medicalip.cafeapi.domains.commons.util.Constants;
+import com.medicalip.cafeapi.domains.commons.util.EncryptUtil;
 import com.medicalip.cafeapi.domains.users.dto.LoginRequest;
 import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.UserRole;
@@ -46,23 +44,29 @@ public class UserServiceimpl implements UserService{
 	private final UsersRepository usersRepository;
 	private final UserRoleRepository userRoleRepository;
 	private final TokenRepository tokenRepository;
-	private final PasswordEncoder passwordEncoder; // 비밀번호 암호화
+//	private final PasswordEncoder passwordEncoder; // 비밀번호 암호화
 	private final Response res;
 	private final AuthenticationManagerBuilder authenticationManagerBuilder;
+	private final AuthenticationManager authenticationManager;
 	
 	public CommonResult signUp(UserRequest userRequest) {
 		System.out.println("signUp Function");
-	  Users users =
-	      usersRepository.save(
+	  Users users = null;
+	try {
+		users = usersRepository.save(
 	    		  Users.builder()
 		    		.email(userRequest.getEmail())
 //		            .password(userRequest.getPassword())
-		            .password(passwordEncoder.encode(userRequest.getPassword()))
+		            .password(EncryptUtil.sha512(userRequest.getPassword()))
 	                .name(userRequest.getName())
 	                .roles(Collections.singletonList(userRequest.getRole()))
 	                .edtTime(LocalDateTime.now())
 	                .regTime(LocalDateTime.now())
 	                .build());
+	} catch (NoSuchAlgorithmException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 		
 	  String accessToken = tokenUtils.generateJwtToken(users);
 	  String refreshToken = tokenUtils.saveRefreshToken(users);
@@ -82,14 +86,16 @@ public class UserServiceimpl implements UserService{
 	public TokenResponse signIn(LoginRequest.Login login) {
         try {
         	Users users = usersRepository.findByEmail(login.getEmail()).get();
+        	System.out.println("users :: " + users.getEmail());
+//        	tokenUtils.generateJwtToken(users);
         	// 1. Login ID/PW 를 기반으로 Authentication 객체 생성
         	// 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
         	UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
-        	System.out.println("authenticationToken :: " + authenticationToken.getAuthorities());
+        	System.out.println("authenticationToken :: " + authenticationToken);
         	
         	// 2. 실제 검증 (사용자 비밀번호 체크)이 이루어지는 부분
             // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
-        	Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        	Authentication authentication = authenticationManager.authenticate(authenticationToken);
         	
             System.out.println("authentication :: " + authentication.getPrincipal());
         	// 3. 인증 정보를 기반으로 JWT 토큰 생성

@@ -4,11 +4,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -16,6 +22,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.medicalip.cafeapi.domains.commons.jwt.JwtAuthenticationFilter;
 import com.medicalip.cafeapi.domains.commons.jwt.TokenUtils;
+import com.medicalip.cafeapi.domains.users.repo.UsersRepository;
+import com.medicalip.cafeapi.domains.users.service.CustomUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,11 +33,23 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 
 	private final TokenUtils tokenUtils;
+	private final CustomUserDetailsService customUserDetailsService;
 	
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+    
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+    	System.out.println("[AuthenticationManagerBuilder configure]");
+    	auth.userDetailsService(new UserDetailsService() {
+    		@Override
+    		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
+    			return (UserDetails) customUserDetailsService.loadUserByUsername(username);
+    		}
+    	});
     }
 
     @Override
@@ -62,7 +82,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
         		
     }
 
-
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return NoOpPasswordEncoder.getInstance();
+	}
     
     // CORS 허용 적용
     @Bean

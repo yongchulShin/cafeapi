@@ -46,6 +46,7 @@ public class TokenUtils {
 	String secretKey;
 	
 	public String generateJwtToken(Users users) {
+		System.out.println("generateJwtToken");
 		Claims claims = Jwts.claims().setSubject(users.getEmail()); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
         claims.put("roles", users.getRoles()); // 정보는 key / value 쌍으로 저장된다.
 	    return Jwts.builder()
@@ -53,7 +54,7 @@ public class TokenUtils {
 	        .setHeader(createHeader())
 	        .setClaims(createClaims(users))
 	        .setExpiration(createExpireDate(Constants.ACCESS_TOKEN_VALID_TIME))
-	        .signWith(SignatureAlgorithm.HS256, createSigningKey(Constants.SECRET_KEY))
+	        .signWith(SignatureAlgorithm.HS512, createSigningKey(Constants.SECRET_KEY))
 	        .compact();
 	}
 	
@@ -87,7 +88,7 @@ public class TokenUtils {
 			.setHeader(createHeader())
 			.setClaims(createClaims(users))
 			.setExpiration(createExpireDate(Constants.REFRESH_TOKEN_VALID_TIME))
-			.signWith(SignatureAlgorithm.HS256, createSigningKey(Constants.REFRESH_KEY))
+			.signWith(SignatureAlgorithm.HS512, createSigningKey(Constants.REFRESH_KEY))
 			.compact();
 	}
 	
@@ -161,7 +162,7 @@ public class TokenUtils {
 	private Key createSigningKey(String key) {
 		// TODO Auto-generated method stub
 		byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(key);
-	    return new SecretKeySpec(apiKeySecretBytes, SignatureAlgorithm.HS256.getJcaName());
+	    return new SecretKeySpec(apiKeySecretBytes, SignatureAlgorithm.HS512.getJcaName());
 	}
 
 	public Date createExpireDate(long expireDate) {
@@ -184,7 +185,7 @@ public class TokenUtils {
 		Map<String, Object> header = new HashMap<>();
 
 	    header.put("typ", "ACCESS_TOKEN");
-	    header.put("alg", "HS256");
+	    header.put("alg", "HS512");
 	    header.put("regDate", System.currentTimeMillis());
 
 	    return header;
@@ -215,13 +216,13 @@ public class TokenUtils {
 				.setSubject(authentication.getName())
 				.claim(Constants.AUTHORITIES_KEY, authorities)
 				.setExpiration(accessTokenExpiresIn)
-				.signWith(SignatureAlgorithm.HS256, createSigningKey(Constants.SECRET_KEY))
+				.signWith(SignatureAlgorithm.HS512, createSigningKey(Constants.SECRET_KEY))
 				.compact();
 
 		// Refresh Token 생성
 		String refreshToken = Jwts.builder()
 				.setExpiration(new Date(now + Constants.REFRESH_TOKEN_VALID_TIME))
-				.signWith(SignatureAlgorithm.HS256, createSigningKey(Constants.REFRESH_KEY))
+				.signWith(SignatureAlgorithm.HS512, createSigningKey(Constants.REFRESH_KEY))
 				.compact();
 
 		return Token.builder()
