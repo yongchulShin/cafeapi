@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.medicalip.cafeapi.domains.commons.response.CommonResult;
+import com.medicalip.cafeapi.domains.order.dto.BalanceSumInterface;
 import com.medicalip.cafeapi.domains.order.dto.Order;
 import com.medicalip.cafeapi.domains.order.dto.OrderDetail;
 import com.medicalip.cafeapi.domains.order.dto.OrderRequest;
@@ -84,16 +85,40 @@ public class OrderServiceimpl implements OrderService  {
 	@Override
 	public Iterable<Order> getbalanceList(String email) {
 		// TODO Auto-generated method stub
-		if(email.isEmpty()) {
-			return orderRepository.getbalanceListAll();
-		}
+//		if(email.isEmpty()) {
+//			return orderRepository.getbalanceListAll();
+//		}
 		return orderRepository.getbalanceList(email);
+	}
+	
+	@Override
+	public List<BalanceSumInterface> getBalanceSum(String email) {
+		// TODO Auto-generated method stub
+		if(email.isEmpty()) {
+			return orderRepository.getBalanceSumAll();
+		}
+		return orderRepository.getBalanceSum(email);
 	}
 
 	@Override
 	public Iterable<Order> getApprovalList(String email) {
 		// TODO Auto-generated method stub
 		return orderRepository.getApprovalList(email);
+	}
+
+	@Override
+	public int updateBalanceYn(String email) {
+		// TODO Auto-generated method stub
+		return orderRepository.updateBalanceYn(email);
+	}
+
+	@Override
+	public List<BalanceSumInterface> getOrderSumList(String email) {
+		// TODO Auto-generated method stub
+		if(email.isEmpty()) {
+			return orderRepository.getOrderSumListAll();
+		}
+		return orderRepository.getOrderSumList(email);
 	}
 
 }

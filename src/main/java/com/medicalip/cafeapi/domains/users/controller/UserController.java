@@ -18,6 +18,8 @@ import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.Users;
 import com.medicalip.cafeapi.domains.users.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class UserController {
 	private final UserService userService; // user Service
 	
 	@PostMapping("/signup")
+	@Operation(summary = "회원가입", description = "회원가입을 한다.")
 	public CommonResult signUp(@RequestBody UserRequest userRequest) {
 	  return userService.findByEmail(userRequest.getEmail()).isPresent()
 	      ? new CommonResult(400, "이미 가입된 회원입니다.")
@@ -35,8 +38,8 @@ public class UserController {
 	}
 	
 	@PostMapping("/signin")
+	@Operation(summary = "로그인", description = "로그인을 한다.")
 	public ResponseEntity<?> signIn(@RequestBody LoginRequest.Login loginRequest) {
-	
 	  return ResponseEntity.ok().body(userService.signIn(loginRequest));
 	}
 	
@@ -45,15 +48,15 @@ public class UserController {
 	  return ResponseEntity.ok().body(userService.findUsers());
 	}
 	
-	@GetMapping("/chPass")
-	public String chPass() {
-		String pass = null;
-		try {
-			pass = EncryptUtil.sha512("1234");
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return pass;
-	}
+//	@GetMapping("/chPass")
+//	public String chPass() {
+//		String pass = null;
+//		try {
+//			pass = EncryptUtil.sha512("1234");
+//		} catch (NoSuchAlgorithmException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return pass;
+//	}
 }
