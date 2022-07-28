@@ -87,6 +87,7 @@ public class UserServiceimpl implements UserService{
         try {
         	Users users = usersRepository.findByEmail(login.getEmail()).get();
         	System.out.println("users :: " + users.getEmail());
+        	System.out.println("users :: " + users.getRoles());
 //        	tokenUtils.generateJwtToken(users);
         	// 1. Login ID/PW 를 기반으로 Authentication 객체 생성
         	// 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
@@ -114,6 +115,7 @@ public class UserServiceimpl implements UserService{
         			.message("로그인에 성공했습니다.")
         			.accessToken(tokenInfo.getAccessToken())
         			.refreshToken(tokenInfo.getRefreshToken())
+        			.rolesList(users.getRoles())
         			.build();
         }catch (BadCredentialsException e) {
 			// TODO: handle exception

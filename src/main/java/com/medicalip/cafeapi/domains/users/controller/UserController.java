@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/user")
-@Tag(name = "Users", description = "회원관리 api")
+@Tag(name = "1. Users", description = "회원관리 api")
 public class UserController {
 	
 	private final UserService userService; // user Service

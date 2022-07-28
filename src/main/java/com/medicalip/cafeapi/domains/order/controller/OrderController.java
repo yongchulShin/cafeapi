@@ -36,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/order")
-@Tag(name = "Order", description = "주문/정산 api")
+@Tag(name = "2. Order", description = "주문/정산 api")
 public class OrderController {
 	
 	private final OrderService orderService;
