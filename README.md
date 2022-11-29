@@ -23,7 +23,7 @@
 ## :pushpin: Projects
 ### 1. [cafe-api](https://github.com/yongchulShin/cafeapi)
 >사내 카페테리아 APP 
->개발 기간: 2022.7.18 ~ 2022.4.5  
+>개발 기간: 2022.7.18 ~ 2022.7.29  
 >  
 >기술 스택:  
 >Java 8 / Spring Boot / Maven / Spring Data JPA 
