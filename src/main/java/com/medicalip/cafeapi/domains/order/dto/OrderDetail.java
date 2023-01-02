@@ -9,9 +9,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.medicalip.cafeapi.domains.menu.dto.Menu;
 
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +28,10 @@ public class OrderDetail {
 	@Id
 	private Long id;
 	
-	private String menu;
+	@OneToOne(fetch = FetchType.EAGER, targetEntity = Menu.class)
+	@JoinColumn(name = "menu_id")
+	private Menu menu;
+	
 	private int cnt;
 	
 	@JsonIgnore
@@ -35,7 +40,7 @@ public class OrderDetail {
 	private Order order;
 	
 	@Builder
-	public OrderDetail(String menu, int cnt, Order order) {
+	public OrderDetail(Menu menu, int cnt, Order order) {
 		this.menu = menu;
 		this.cnt = cnt;
 		this.order = order;

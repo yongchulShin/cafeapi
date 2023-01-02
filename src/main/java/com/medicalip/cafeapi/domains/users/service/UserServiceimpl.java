@@ -25,6 +25,7 @@ import com.medicalip.cafeapi.domains.commons.response.TokenResponse;
 import com.medicalip.cafeapi.domains.commons.util.Constants;
 import com.medicalip.cafeapi.domains.commons.util.EncryptUtil;
 import com.medicalip.cafeapi.domains.users.dto.LoginRequest;
+import com.medicalip.cafeapi.domains.users.dto.LoginRequest.Login;
 import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.UserRole;
 import com.medicalip.cafeapi.domains.users.dto.Users;
@@ -102,19 +103,79 @@ public class UserServiceimpl implements UserService{
         	// 3. 인증 정보를 기반으로 JWT 토큰 생성
         	Token tokenInfo = tokenUtils.generateToken(authentication);
         	
+        	Optional<Token> updateOp = tokenRepository.findByUsersId(users.getId());
+        	
         	// 4. RefreshToken 저장 (expirationTime 설정을 통해 자동 삭제 처리)
-        	tokenRepository.save(
-        			Token.builder()
-        			.accessToken(tokenInfo.getAccessToken())
-        			.refreshToken(tokenInfo.getRefreshToken())
-        			.users(users)
-        			.expireDt(tokenUtils.createExpireDate(Constants.REFRESH_TOKEN_VALID_TIME))
-        			.build());
+        	if(updateOp.stream().count() != 0) { // RefreshToken 만료
+        		Token updateToken = updateOp.get();
+        		updateToken.setAccessToken(tokenInfo.getAccessToken());
+        		updateToken.setExpireDt(tokenUtils.createExpireDate(Constants.REFRESH_TOKEN_VALID_TIME));
+        		tokenRepository.save(updateToken);
+        	}else {
+        		tokenRepository.save( // 신규(최초)
+        				Token.builder()
+        				.accessToken(tokenInfo.getAccessToken())
+        				.refreshToken(tokenInfo.getRefreshToken())
+        				.users(users)
+        				.expireDt(tokenUtils.createExpireDate(Constants.REFRESH_TOKEN_VALID_TIME))
+        				.build());
+        	}
+        	
         	return TokenResponse.builder()
         			.status(HttpStatus.OK)
         			.message("로그인에 성공했습니다.")
         			.accessToken(tokenInfo.getAccessToken())
         			.refreshToken(tokenInfo.getRefreshToken())
+        			.rolesList(users.getRoles())
+        			.build();
+        }catch (BadCredentialsException e) {
+			// TODO: handle exception
+        	return TokenResponse.builder()
+        			.status(HttpStatus.FORBIDDEN)
+    				.message("비밀번호가 일치하지 않습니다.")
+        			.build();
+		}catch (NoSuchElementException e) {
+			// TODO: handle exception
+        	return TokenResponse.builder()
+        			.status(HttpStatus.BAD_REQUEST)
+    				.message("존재하지 않는 회원입니다.")
+        			.build();
+		}
+	}
+	
+	public List<Users> findUsers() {
+	  return usersRepository.findAll();
+	}
+		
+	public Optional<Users> findByEmail(String email) {
+		// TODO Auto-generated method stub
+		return usersRepository.findByEmail(email);
+	}
+
+	public UserRole saveUserRole(UserRole userRole) {
+		// TODO Auto-generated method stub
+		log.info("Saving new role {} to the db", userRole.getRoleName());
+        return userRoleRepository.save(userRole);
+	}
+
+	@Override
+	public TokenResponse signInByRefreshToken(Login loginRequest, String refreshToken) {
+		// TODO Auto-generated method stub'
+		System.out.println("[refreshToken] :: " + refreshToken);
+		try {
+			Users users = usersRepository.findByEmail(loginRequest.getEmail()).get();
+			String accessToken = tokenUtils.generateJwtToken(users);
+			
+			Token updateToken = tokenRepository.findByUsersId(users.getId()).get();
+			updateToken.setAccessToken(accessToken);
+			updateToken.setUsers(users);
+			tokenRepository.save(updateToken);
+			
+			return TokenResponse.builder()
+        			.status(HttpStatus.OK)
+        			.message("로그인에 성공했습니다.")
+        			.accessToken(updateToken.getAccessToken())
+        			.refreshToken(updateToken.getRefreshToken())
         			.rolesList(users.getRoles())
         			.build();
         }catch (BadCredentialsException e) {
@@ -134,21 +195,6 @@ public class UserServiceimpl implements UserService{
 //            			.refreshToken(tokenInfo.getRefreshToken())
         			.build();
 		}
-	}
-	
-	public List<Users> findUsers() {
-	  return usersRepository.findAll();
-	}
-		
-	public Optional<Users> findByEmail(String email) {
-		// TODO Auto-generated method stub
-		return usersRepository.findByEmail(email);
-	}
-
-	public UserRole saveUserRole(UserRole userRole) {
-		// TODO Auto-generated method stub
-		log.info("Saving new role {} to the db", userRole.getRoleName());
-        return userRoleRepository.save(userRole);
 	}
 	
 }

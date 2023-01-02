@@ -12,7 +12,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.DatatypeConverter;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +20,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import com.medicalip.cafeapi.domains.auth.dto.Token;
@@ -33,8 +31,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -52,7 +48,7 @@ public class TokenUtils {
 	    return Jwts.builder()
 	        .setSubject(users.getEmail())
 	        .setHeader(createHeader())
-	        .setClaims(createClaims(users))
+	        .setClaims(claims)
 	        .setExpiration(createExpireDate(Constants.ACCESS_TOKEN_VALID_TIME))
 	        .signWith(SignatureAlgorithm.HS512, createSigningKey(Constants.SECRET_KEY))
 	        .compact();
@@ -61,8 +57,10 @@ public class TokenUtils {
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
     public Authentication getAuthentication(String accessToken) {
     	System.out.println("accessToken :: " + accessToken);
+    	accessToken = accessToken.replace("Bearer ", "");
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
+        System.out.println("claims :: " + claims);
 
         if (claims.get(Constants.AUTHORITIES_KEY) == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
@@ -86,7 +84,7 @@ public class TokenUtils {
 		return Jwts.builder()
 			.setSubject(users.getEmail())
 			.setHeader(createHeader())
-			.setClaims(createClaims(users))
+			.setClaims(claims)
 			.setExpiration(createExpireDate(Constants.REFRESH_TOKEN_VALID_TIME))
 			.signWith(SignatureAlgorithm.HS512, createSigningKey(Constants.REFRESH_KEY))
 			.compact();
@@ -108,27 +106,28 @@ public class TokenUtils {
     
     // Request의 Header에서 token 값을 가져옵니다. "ACCESS_TOKEN" : "TOKEN값'
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("ACCESS_TOKEN");
+        return request.getHeader("Authorization");
     }
 	
-	public boolean isValidToken(String token) {
+	public String isValidToken(String token) {
 		// TODO Auto-generated method stub
-		System.out.println("isValidToken is : " +token);
+		token = token.replace("Bearer ", "");
 		try {
 		  Claims accessClaims = getClaimsFormToken(token);
 		  System.out.println("accessClaims is : " + accessClaims);
 		  System.out.println("Access expireTime: " + accessClaims.getExpiration());
 		  System.out.println("Access email: " + accessClaims.get("sub"));
-		  return !accessClaims.getExpiration().before(new Date());
+//		  return !accessClaims.getExpiration().before(new Date());
+		  return "success";
 		} catch (ExpiredJwtException exception) {
 		  System.out.println("Token Expired UserID : " + exception.getClaims().getSubject());
-		  return false;
+		  return "expired";
 		} catch (JwtException exception) {
 		  System.out.println("Token Tampered");
-		  return false;
+		  return "tampered";
 		} catch (NullPointerException exception) {
 		  System.out.println("Token is null");
-		  return false;
+		  return "null";
 		}
 	}
 
@@ -151,7 +150,7 @@ public class TokenUtils {
 	  }
 	
 	
-	private Claims getClaimsToken(String token) {
+	public Claims getClaimsToken(String token) {
 		// TODO Auto-generated method stub
 		return Jwts.parser()
 		.setSigningKey(DatatypeConverter.parseBase64Binary(Constants.REFRESH_KEY))
@@ -177,6 +176,7 @@ public class TokenUtils {
 		// TODO Auto-generated method stub
 		Map<String, Object> claims = new HashMap<>();
 	    claims.put(Constants.DATA_KEY, users.getEmail());
+	    claims.put("roles", users.getRoles()); // 정보는 key / value 쌍으로 저장된다.
 	    return claims;
 	}
 
@@ -184,7 +184,7 @@ public class TokenUtils {
 		// TODO Auto-generated method stub
 		Map<String, Object> header = new HashMap<>();
 
-	    header.put("typ", "ACCESS_TOKEN");
+	    header.put("typ", "Authorization");
 	    header.put("alg", "HS512");
 	    header.put("regDate", System.currentTimeMillis());
 
@@ -233,7 +233,7 @@ public class TokenUtils {
 	}
 	
 	private Claims parseClaims(String accessToken) {
-				
+		accessToken = accessToken.replace("Bearer ", "");		
         try {
             return Jwts.parser().setSigningKey(Constants.SECRET_KEY).parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {

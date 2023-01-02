@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.medicalip.cafeapi.domains.auth.repo.TokenRepository;
 import com.medicalip.cafeapi.domains.commons.jwt.JwtAuthenticationFilter;
 import com.medicalip.cafeapi.domains.commons.jwt.TokenUtils;
 import com.medicalip.cafeapi.domains.users.repo.UsersRepository;
@@ -33,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 
 	private final TokenUtils tokenUtils;
+	private final TokenRepository tokenRepository;
 	private final CustomUserDetailsService customUserDetailsService;
 	
     @Bean
@@ -69,14 +71,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 	            .authorizeRequests() // 다음 리퀘스트에 대한 사용권한 체크
 	                .mvcMatchers("/", "/test/**", "/user/**", 
 	                		"/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**",
-	                		"/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**" ).permitAll()
+	                		"/swagger-ui.html", "/webjars/**", "/swagger/**","/swagger-ui/**","/filedown/**" ).permitAll()
 	                
 	                // 가입 및 인증 주소는 누구나 접근 가능
-	                .antMatchers("/order/**").hasAnyRole("USER","ADMIN")
+//	                .antMatchers("/order/**").hasAnyRole("USER","ADMIN")
 	                // helloworld로 시작하는 get 요청 리소스는 누구나 접근 가능
 	                .anyRequest().authenticated()
           .and()
-          .addFilterBefore(new JwtAuthenticationFilter(tokenUtils),
+          .addFilterBefore(new JwtAuthenticationFilter(tokenUtils, tokenRepository),
                   UsernamePasswordAuthenticationFilter.class);
 	                // 그 외 나머지 요청은 모두 인증된 회원만 접근 가능
         		

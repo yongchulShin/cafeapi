@@ -1,6 +1,11 @@
 package com.medicalip.cafeapi.domains.users.controller;
 
+import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,14 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.medicalip.cafeapi.domains.commons.response.CommonResult;
+import com.medicalip.cafeapi.domains.commons.response.TokenResponse;
 import com.medicalip.cafeapi.domains.users.dto.LoginRequest;
 import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.Users;
 import com.medicalip.cafeapi.domains.users.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -41,8 +45,30 @@ public class UserController {
 	
 	@PostMapping("/signin")
 	@Operation(summary = "로그인", description = "로그인을 한다.")
-	public ResponseEntity<?> signIn(@RequestBody LoginRequest.Login loginRequest) {
-	  return ResponseEntity.ok().body(userService.signIn(loginRequest));
+	public ResponseEntity<?> signIn(@RequestBody LoginRequest.Login loginRequest, HttpServletRequest request,  HttpServletResponse response) {
+		TokenResponse jwtToken;
+		System.out.println("request.getCookies() :: " + request.getCookies());
+		if(!(request.getCookies() == null)) {
+			String refreshToken = Arrays.stream(request.getCookies())
+					.filter(c -> c.getName().equals("refreshToken"))
+					.map(Cookie::getValue).toString();
+			System.out.println("!(request.getCookies() == null)");
+			//refreshToken 있으므로 accessToken 재발행
+			jwtToken = userService.signInByRefreshToken(loginRequest, refreshToken);
+		}else {
+			jwtToken = userService.signIn(loginRequest);
+			
+			//쿠키생성
+			Cookie refreshCookie = new Cookie("refreshToken", jwtToken.getRefreshToken());
+			refreshCookie.setMaxAge(365 * 24 * 60 * 60); //만료기간 1년
+			refreshCookie.setSecure(true);
+			refreshCookie.setHttpOnly(true);
+			refreshCookie.setPath("/");
+			
+			response.addCookie(refreshCookie);
+		}
+		return ResponseEntity.ok().body(jwtToken);
+		
 	}
 	
 	@GetMapping("/info")

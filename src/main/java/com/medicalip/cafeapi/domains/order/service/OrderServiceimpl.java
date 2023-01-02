@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.medicalip.cafeapi.domains.commons.response.CommonResult;
+import com.medicalip.cafeapi.domains.menu.repo.MenuRepository;
 import com.medicalip.cafeapi.domains.order.dto.BalanceSumInterface;
 import com.medicalip.cafeapi.domains.order.dto.Order;
 import com.medicalip.cafeapi.domains.order.dto.OrderDetail;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderServiceimpl implements OrderService  {
 	
 	private final UsersRepository usersRepository;
+	private final MenuRepository menuRepository;
 	private final OrderRepository orderRepository;
 	private final OrderDetailRepository orderDetailRepository;
 	
@@ -54,7 +56,7 @@ public class OrderServiceimpl implements OrderService  {
 		for(int i = 0; i < orderRequest.getOrderDetail().size(); i++) {
 			OrderDetail od = orderDetailRepository.save(
 							OrderDetail.builder()
-								.menu(orderRequest.getOrderDetail().get(i).getMenu())
+								.menu(menuRepository.getById(orderRequest.getOrderDetail().get(i).getMenu().getId()))
 								.cnt(orderRequest.getOrderDetail().get(i).getCnt())
 								.order(order)
 								.build());

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import com.medicalip.cafeapi.domains.commons.response.CommonResult;
 import com.medicalip.cafeapi.domains.commons.response.TokenResponse;
 import com.medicalip.cafeapi.domains.users.dto.LoginRequest;
+import com.medicalip.cafeapi.domains.users.dto.LoginRequest.Login;
 import com.medicalip.cafeapi.domains.users.dto.UserRequest;
 import com.medicalip.cafeapi.domains.users.dto.UserRole;
 import com.medicalip.cafeapi.domains.users.dto.Users;
@@ -19,4 +20,5 @@ public interface UserService {
 	List<Users> findUsers();
 	TokenResponse signIn(LoginRequest.Login loginRequest);
 	UserRole saveUserRole(UserRole userRole);
+	TokenResponse signInByRefreshToken(Login loginRequest, String refreshToken);
 }

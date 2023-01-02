@@ -14,10 +14,10 @@ public final class Constants {
     public static final String SECRET_KEY = "secretKey";
     public static final String REFRESH_KEY = "refreshKey";
     public static final String DATA_KEY = "email";
-    public static final String AUTHORITIES_KEY = "auth";
+    public static final String AUTHORITIES_KEY = "roles";
 	
 //    public static final long ACCESS_TOKEN_VALID_TIME = 1000 * 60 * 60; //1시간
-    public static final long ACCESS_TOKEN_VALID_TIME = 1000L * 60 * 60; //1시간
+    public static final long ACCESS_TOKEN_VALID_TIME = 1000L * 60 * 10; //10분
     public static final long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 24 * 30; // 1달
     
 }
